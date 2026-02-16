@@ -118,40 +118,194 @@ El diseño cuidadoso de estos modificadores permite definir con claridad la fron
 
 ### Respuesta
 
+En POO suelen distinguirse varios niveles de visibilidad más allá de lo **público** y **privado**, aunque los nombres y posibilidades dependen del lenguaje. En términos generales, muchos lenguajes incluyen también niveles de acceso **protegido** y, en ocasiones, niveles intermedios que limitan la visibilidad según módulos, paquetes o espacios de nombres. El objetivo de estos niveles adicionales es ofrecer un control más fino sobre qué elementos pueden verse desde qué partes del programa, permitiendo construir arquitecturas más modulares y seguras.
+
+En **Java**, además de `public` y `private`, existen dos niveles adicionales:
+
+*   **`protected`**: accesible desde la propia clase, sus subclases y clases del mismo paquete.
+*   ***default* (o *package‑private*)**: cuando no se especifica ningún modificador; accesible solo desde clases del mismo paquete.
+
+Esto significa que Java define **cuatro** niveles de visibilidad: `public`, `protected`, *package‑private* y `private`. Cada uno determina hasta qué punto un elemento puede formar parte de la interfaz pública o quedar restringido a zonas más internas del proyecto. Esta variedad permite diseñar APIs más limpias y evitar dependencias no deseadas entre componentes.
+
+En otros lenguajes de POO existen variaciones. En **C++**, por ejemplo, se usan también `public`, `protected` y `private`, pero no existe el concepto de paquete; además, todo gira en torno a clases y herencia. En **C#**, además de los tres anteriores, existen modificadores como `internal` y `protected internal`, que controlan el acceso a nivel de ensamblado. Algunos lenguajes modernos, como **Swift** o **Kotlin**, incluyen niveles adicionales como `internal` o `module`, que restringen la visibilidad al módulo de compilación. En todos los casos, el propósito es permitir que el programador ajuste la visibilidad a las necesidades de organización y seguridad del código.
+
+Así, aunque la idea básica de visibilidad pública o privada es común a la mayoría de lenguajes orientados a objetos, cada lenguaje ofrece capas adicionales para controlar la accesibilidad según jerarquía, módulos o empaquetado. Esto da mayor flexibilidad en el diseño de software y facilita aplicar la encapsulación de forma más precisa según el contexto. ¿Quieres que prepare una tabla comparativa entre Java, C++ y C#?
+
 
 ## 8. Responde: Los miembros de instancia privados de un objeto están ocultos para (a) otras clases o (b) otras instancias, aunque sean de la misma clase. Pon un ejemplo añadiendo un método `calcularDistanciaAPunto(Punto otro)` y explica la respuesta.
 
 ### Respuesta
+
+**Respuesta breve:** En Java, los **miembros de instancia `private`** están **ocultos para otras clases**, pero **no** están ocultos **entre instancias de la misma clase**. Cualquier método definido dentro de la clase puede acceder a los campos `private` **tanto del propio objeto (`this`) como de otro objeto** del mismo tipo recibido como parámetro. Por tanto, la opción correcta es **(a) otras clases**; **no** se ocultan frente a **(b) otras instancias** si el acceso ocurre **dentro** del código de la propia clase.
+
+Esto ocurre porque la visibilidad `private` se aplica **a nivel de clase**, no a nivel de objeto. La regla indica que *solo el código de la clase* puede acceder a sus miembros privados; si se dispone de una referencia a otro objeto de esa misma clase, ese mismo código puede leer o modificar sus campos privados. Esto permite escribir métodos que comparan o combinan el estado de dos instancias sin romper la encapsulación, ya que el acceso sigue estando controlado y localizado en el interior de la clase.
+
+**Ejemplo con `calcularDistanciaAPunto(Punto otro)`:**
+
+```java
+public class Punto {
+
+    private double x;
+    private double y;
+
+    public Punto(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public double getX() { return x; }
+    public double getY() { return y; }
+
+    // Distancia al origen
+    public double calcularDistanciaAOrigen() {
+        return Math.sqrt(x * x + y * y);
+    }
+
+    // Distancia a otro punto: se accede a sus campos privados porque
+    // el acceso ocurre dentro de la MISMA clase Punto
+    public double calcularDistanciaAPunto(Punto otro) {
+        double dx = this.x - otro.x;   // acceso legal: 'otro.x' es private pero estamos en Punto
+        double dy = this.y - otro.y;   // acceso legal: 'otro.y' es private pero estamos en Punto
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+}
+```
+
+En este código se observa que `calcularDistanciaAPunto` accede a `otro.x` y `otro.y` directamente, aun siendo `private`. Esto es válido porque el acceso se realiza **desde dentro de la clase `Punto`**. Si se intentara leer `p.x` desde **otra clase** (por ejemplo, `Main`), el compilador lo prohibiría. De este modo, se mantiene la **ocultación de información** frente al exterior, al tiempo que se permite la colaboración segura entre instancias dentro de la misma abstracción.
 
 
 ## 9. ¿Qué son los métodos "getter" y "setter" en los lenguajes orientados a objetos?
 
 ### Respuesta
 
+Los **métodos *getter* y *setter*** son funciones utilizadas en lenguajes orientados a objetos para **acceder** y **modificar** atributos privados de una clase de manera controlada. Su finalidad principal es mantener la **encapsulación**, permitiendo que los datos internos estén protegidos mediante `private`, mientras se ofrece una interfaz segura para leer o actualizar esos valores. En este sentido, los *getter* permiten obtener el valor de un atributo sin exponerlo directamente, y los *setter* permiten modificarlo verificando, si es necesario, que la modificación sea válida.
+
+Un **método *getter*** suele simplemente **devolver el valor de un atributo privado**, sin permitir que el exterior modifique ese dato. En Java, por ejemplo, se nombra normalmente como `getAtributo()`. Este mecanismo garantiza que otros objetos puedan consultar la información sin acceder directamente al campo interno, lo que preserva la ocultación de información. El *getter* forma parte de la interfaz pública y permite mantener la lectura del estado del objeto bajo control.
+
+Por otro lado, un **método *setter*** se utiliza para **modificar el valor de un atributo privado**, normalmente implementando comprobaciones o restricciones antes de asignar el nuevo valor. En Java se nombra habitualmente como `setAtributo(...)`. Gracias a este diseño, la clase decide cómo y cuándo pueden cambiar sus datos internos, lo que ayuda a mantener las **invariantes de clase** y a evitar estados inválidos. Un *setter* mal diseñado podría romper la encapsulación si permite valores incoherentes, por lo que su uso debe plantearse con cautela.
+
+En conjunto, los *getter* y *setter* constituyen una parte importante de la **interfaz pública** de una clase cuando se desea exponer ciertos datos sin sacrificar la encapsulación. No obstante, en un diseño orientado a objetos bien estructurado, suelen recomendarse solo cuando es necesario: si la clase puede ofrecer un comportamiento más abstracto en vez de exponer atributos directamente mediante *getters* y *setters*, se preserva mejor la encapsulación y la autonomía del objeto.
+
 
 ## 10. Cuando nos referimos a que la ocultación de información mejora la "seguridad" del programa, ¿nos referimos a que no pueda ser "hackeado"?
 
 ### Respuesta
+
+No, cuando en POO se dice que la **ocultación de información mejora la “seguridad”**, no se está hablando de seguridad en el sentido de evitar *hackeos* o ataques informáticos. En este contexto, la palabra *seguridad* se usa en un sentido **interno al diseño del software**, no en un sentido de ciberseguridad. El objetivo es evitar que el propio código de la aplicación manipule datos internos de forma incorrecta, accidental o incoherente.
+
+La ocultación de información aumenta la **seguridad lógica del programa**, porque impide que partes externas modifiquen atributos sensibles sin pasar por métodos controlados. Gracias a ello, la clase puede mantener sus invariantes, evitar estados inconsistentes y protegerse de errores provocados por un mal uso involuntario. Se trata de prevenir fallos de programación, no ataques maliciosos.
+
+Por tanto, la “seguridad” en este contexto significa que el objeto se **protege frente a usos indebidos dentro del propio código del desarrollador**, no frente a amenazas externas. La encapsulación ayuda a que el software sea más robusto, fácil de mantener y menos propenso a errores, pero no constituye un mecanismo de defensa ante vulnerabilidades de seguridad informática.
 
 
 ## 11. ¿Qué diferencia hay entre **miembro de instancia** y **miembro de clase**? ¿Los miembros de clase también se pueden ocultar?
 
 ### Respuesta
 
+Un **miembro de instancia** es un atributo o método que pertenece a cada objeto individual creado a partir de una clase. Esto significa que cada instancia mantiene su propia copia de esos datos, y las operaciones que actúan sobre ellos afectan solo al objeto concreto. Por ejemplo, en una clase `Punto`, las coordenadas `x` e `y` son miembros de instancia: cada punto tiene sus propios valores. Esta idea resulta familiar viniendo de C/C++, donde cada estructura (`struct`) tiene su propio conjunto de campos para cada variable creada.
+
+En contraste, un **miembro de clase** es un atributo o método que pertenece a la clase en sí y no a cada objeto. En Java, se declaran con la palabra clave `static`. La clase mantiene una única copia del miembro, compartida por todas las instancias. Esto permite almacenar información común o implementar utilidades independientes del estado de cualquier objeto concreto. Por ejemplo, si se quisiera contar cuántos `Punto` se han creado, ese contador sería un miembro de clase.
+
+Respecto a la visibilidad, **los miembros de clase también pueden ocultarse**. Un atributo o método estático puede declararse como `private`, lo que impide que otras clases accedan directamente a él, del mismo modo que ocurre con los miembros de instancia. La ocultación sigue funcionando igual, porque el modificador de acceso se aplica al elemento dentro de la clase, sin importar si es estático o no. Esto permite proteger datos globales compartidos y evitar modificaciones externas que puedan comprometer el funcionamiento de la clase.
+
+Así, tanto los miembros de instancia como los de clase pueden beneficiarse de la encapsulación. La diferencia está en su ámbito: los primeros pertenecen a cada objeto y los segundos son compartidos por todos ellos. Pero ambos pueden ser públicos o privados según lo que convenga al diseño, permitiendo controlar la interfaz pública y preservar la coherencia del estado interno, ya sea individual o compartido.
+
 
 ## 12. Brevemente: ¿Tiene sentido que los constructores sean privados?
 
 ### Respuesta
+
+Sí, **tiene sentido que los constructores sean privados**, aunque solo en situaciones específicas. Un constructor privado impide que otras clases creen instancias directamente, lo que puede resultar útil cuando la clase desea **controlar completamente cómo y cuándo se crean sus objetos**. De esta forma, se puede forzar que todas las instancias pasen por métodos estáticos especializados, o incluso impedir que existan múltiples instancias.
+
+Un caso típico es el **patrón Singleton**, donde se desea que exista una única instancia en todo el programa. Al hacer el constructor privado, se evita que otros componentes creen nuevos objetos, y la propia clase proporciona una instancia única mediante un método público estático. Esto ayuda a mantener invariantes y a garantizar que solo exista un objeto que represente ese recurso compartido.
+
+Otra situación donde un constructor privado tiene sentido es cuando se quiere ofrecer **métodos de fábrica (factory methods)** para crear objetos de maneras controladas. En estos casos, la clase oculta los detalles de construcción y expone métodos con nombres más expresivos, como `crearDesdeCoordenadasPolaras(...)`, evitando que el usuario deba conocer la representación interna. Esta técnica mejora la encapsulación y facilita la evolución de la implementación.
+
+En resumen, aunque la mayoría de clases utiliza constructores públicos, declarar un constructor como privado puede ser una herramienta útil para controlar el proceso de creación de instancias. Esto permite reforzar la encapsulación, proteger invariantes y guiar al usuario hacia formas de construcción más claras y seguras. ¿Quieres que prepare un ejemplo de un Singleton o una clase con factory methods?
 
 
 ## 13. ¿Cómo se indican los **miembros de clase** en Java? Pon un ejemplo, en la clase `Punto` definida anteriormente, para que incluya miembros de clase que permitan saber cuáles son los valores `x` e `y` máximos que se han establecido en todos los puntos que se hayan creado hasta el momento.
 
 ### Respuesta
 
+En Java, los **miembros de clase** se indican con la palabra clave `static`. Pertenecen a la **clase** y no a cada objeto, por lo que existe **una única copia compartida** entre todas las instancias. Esto permite mantener información global o utilidades independientes del estado concreto de un objeto. Se accede a ellos preferentemente mediante el **nombre de la clase** (p. ej., `Punto.getMaxX()`), lo que refuerza que no dependen de una instancia.
+
+A continuación, se muestra la clase `Punto` extendida para incluir **miembros de clase** que registran los valores máximos de `x` e `y` que se han establecido en **cualquier** punto creado hasta el momento. Se actualizan en el **constructor** (y también en los *setters*, si existen), y se exponen mediante **métodos estáticos** de solo lectura. De este modo se preserva la encapsulación: los máximos no pueden modificarse desde fuera arbitrariamente, solo evolucionan a través del uso normal de la clase.
+
+```java
+public class Punto {
+
+    // --- Estado de instancia (ocultación de información) ---
+    private double x;
+    private double y;
+
+    // --- Estado de clase (compartido por todas las instancias) ---
+    private static double maxX = Double.NEGATIVE_INFINITY;
+    private static double maxY = Double.NEGATIVE_INFINITY;
+
+    // Constructor de instancia
+    public Punto(double x, double y) {
+        this.x = x;
+        this.y = y;
+        actualizarMaximos(x, y);
+    }
+
+    // Getters de instancia
+    public double getX() { return x; }
+    public double getY() { return y; }
+
+    // (Opcional) Setters de instancia que mantienen invariantes y actualizan máximos
+    public void setX(double x) {
+        this.x = x;
+        actualizarMaximos(this.x, this.y);
+    }
+
+    public void setY(double y) {
+        this.y = y;
+        actualizarMaximos(this.x, this.y);
+    }
+
+    // Método de instancia
+    public double calcularDistanciaAOrigen() {
+        return Math.sqrt(x * x + y * y);
+    }
+
+    // --- Interfaz pública de clase (miembros estáticos) ---
+    public static double getMaxX() { return maxX; }
+    public static double getMaxY() { return maxY; }
+
+    // (Opcional) Método de clase para reiniciar los máximos si interesa
+    public static void reiniciarMaximos() {
+        maxX = Double.NEGATIVE_INFINITY;
+        maxY = Double.NEGATIVE_INFINITY;
+    }
+
+    // --- Implementación privada de clase ---
+    private static void actualizarMaximos(double x, double y) {
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+    }
+}
+```
+
+La **interfaz pública** relacionada con los miembros de clase está formada por `getMaxX()`, `getMaxY()` (y, si se desea, `reiniciarMaximos()`), todos marcados como `static`. Los campos `maxX` y `maxY` están **ocultos** (`private`) para impedir modificaciones externas y solo cambian a través de `actualizarMaximos(...)`, que también es **privado y estático**. Este diseño mantiene la encapsulación y separa claramente el **estado por objeto** del **estado compartido**. Si se necesitara concurrencia real, podría considerarse sincronización o tipos atómicos; para uso básico de un solo hilo, la solución mostrada es suficiente.
+
 
 ## 14. Como sería un método factoría dentro de la clase `Punto` para construir un `Punto` a partir de dos coordenadas, pero que las redondee al entero más cercano. Escribe sólo el código del método, no toda la clase ¿Has usado `static`? 
 
 ### Respuesta
+
+
+
+```java
+public static Punto crearRedondeando(double x, double y) {
+    double rx = Math.round(x);
+    double ry = Math.round(y);
+    return new Punto(rx, ry);
+}
+```
+
+Sí, se ha usado `static`, porque un método factoría **no depende de una instancia concreta**: su función es crear objetos nuevos, por lo que tiene sentido que pertenezca a la **clase**, no a un objeto ya existente.
 
 
 ## 15. Cambia la implementación de `Punto`. En vez de dos `double`, emplea un array interno de dos posiciones, intentando no modificar la interfaz pública de la clase.
