@@ -24,6 +24,10 @@ En esencia, se busca separar claramente la **interfaz pública** de una clase (l
 
 Entre las ventajas de la ocultación de información pueden mencionarse varias. En primer lugar, permite **proteger el estado interno** del objeto, impidiendo accesos indebidos y garantizando que las reglas de uso se cumplan siempre. También **favorece el mantenimiento** del código, ya que los detalles internos pueden cambiar sin afectar a quienes utilizan la clase, siempre que la interfaz pública se mantenga. Por último, contribuye a **reducir el acoplamiento** entre módulos, facilitando la reutilización y una mayor robustez del sistema.
 
+**Clase Teoría**
+Encapsulación tiene que ver con protección, se juntan estado y comportamiento en un artefacto (clase) y ahora puedo ocultar ciertas partes al exterior. 
+Evita tando estados no validos de los objetos como dependencias desde afuera que no se quieren.
+
 
 
 ## 2. ¿Qué se entiende por la **interfaz pública** de un objeto o clase en POO? Describe brevemente cómo se relaciona con la ocultación de información.
@@ -38,6 +42,9 @@ La relación con la **ocultación de información** es directa: la interfaz púb
 
 De esta forma, la interfaz pública actúa como una barrera bien definida entre el exterior y el interior de un objeto. El usuario de la clase solo necesita conocer qué métodos puede llamar y qué comportamiento esperar, mientras que la clase conserva libertad para cambiar cómo realiza internamente esas operaciones. Esto refuerza el principio central de la encapsulación: proteger los datos y exponer únicamente lo necesario para un uso correcto.
 
+**Clase toría**
+**Interfaz pública** -> Los **miembros** que se ven desde afuera, es decir los que no están ocultos.
+
 
 ## 3. Brevemente: ¿Por qué hay que ser conscientes y diseñar con cuidado la **interfaz pública** de una clase? ¿Es fácil cambiarla?
 
@@ -46,6 +53,9 @@ De esta forma, la interfaz pública actúa como una barrera bien definida entre 
 La **interfaz pública** de una clase debe diseñarse con especial cuidado porque actúa como el punto de contacto entre la clase y el resto del programa. Todo aquello que se expone públicamente se convierte en una especie de contrato que otros módulos utilizan y del que dependen. Si la interfaz está mal diseñada —por ejemplo, si expone demasiado, si ofrece métodos confusos o si permite un uso incorrecto del objeto— el mantenimiento del software se vuelve más difícil y aumenta el riesgo de errores. Una interfaz clara, mínima y bien pensada facilita que la clase sea más robusta y más fácil de usar sin conocer su implementación interna.
 
 No es fácil cambiar una interfaz pública una vez que otros componentes dependen de ella. Cualquier modificación puede obligar a actualizar múltiples partes del código que la utilizan, provocando incompatibilidades o introduciendo nuevos fallos. Además, modificar la interfaz rompe la abstracción que proporciona la ocultación de información, ya que obliga a los usuarios de la clase a adaptarse a los cambios. Por este motivo se recomienda exponer únicamente lo necesario y mantener la interfaz estable siempre que sea posible, lo cual reduce el impacto sobre el resto del sistema y facilita la evolución interna de la clase sin consecuencias externas.
+
+**Clase toría**
+La interfaz pública si se cambia tiene más consecuencias que cualquier cambio en la parte oculta. Por eso solo se expone unicamente lo necesario para mantener esta interfaz estable.
 
 
 ## 4. ¿Qué son las **invariantes de clase** y por qué la ocultación de información nos ayuda?
@@ -60,6 +70,12 @@ Cuando el programador controla todas las modificaciones del estado interno, resu
 
 De esta forma, las invariantes de clase y la ocultación de información trabajan de manera complementaria. Las invariantes definen cómo debe ser el estado correcto de un objeto, y la ocultación proporciona los medios para evitar que ese estado se rompa accidentalmente. Esto facilita tanto el mantenimiento como la evolución del código, ya que se reduce el riesgo de corromper la lógica interna por accesos incontrolados.
 
+**Clase toría**
+**Invariantes de clase** -> todas las condiciones que se deben cumplir durante toda la vida util de los objetos de esa clase para ser válidos.
+Ej.:
+Saldo positivo en cuenta bancaria.
+Edad >= 0 en una persona.
+(No tiene porque ser solo numericos puden ser de cualquier tipo)
 
 ## 5. Pon un ejemplo de una clase `Punto` en `Java`, con dos coordenadas, `x` e `y`, de tipo `double`, con un método `calcularDistanciaAOrigen`, y que haga uso de la ocultación de información. ¿Cuál es la interfaz pública de la clase `Punto`? ¿Qué significa `public` y `private`?
 
@@ -75,7 +91,8 @@ public class Punto {
     private double y;
 
     // Constructor público
-    public Punto(double x, double y) {
+    public Punto(double x, double y) { // aqui si no se pone public seria por defecto 
+    // package-private solo visible por el paquete
         this.x = x;
         this.y = y;
     }
@@ -113,6 +130,10 @@ Por su parte, el modificador `private` **no puede aplicarse a clases de nivel su
 
 El diseño cuidadoso de estos modificadores permite definir con claridad la frontera entre lo que se expone al exterior y lo que permanece oculto. De esta forma, `public` sirve para establecer los puntos de acceso seguros, mientras que `private` contribuye a garantizar que los detalles internos se mantengan protegidos. Esta separación es fundamental para la encapsulación y para construir clases robustas y fáciles de mantener.
 
+**Clase toría**
+En java:
+Public: calses, atributos y métodos.
+Private: clases internas, atributos, métodos.
 
 ## 7. En POO, la visibilidad puede ser pública o privada, pero ¿existen más tipos de visibilidad? ¿Qué ocurre en Java? ¿Y en otros lenguajes?
 
@@ -131,6 +152,10 @@ En otros lenguajes de POO existen variaciones. En **C++**, por ejemplo, se usan 
 
 Así, aunque la idea básica de visibilidad pública o privada es común a la mayoría de lenguajes orientados a objetos, cada lenguaje ofrece capas adicionales para controlar la accesibilidad según jerarquía, módulos o empaquetado. Esto da mayor flexibilidad en el diseño de software y facilita aplicar la encapsulación de forma más precisa según el contexto. ¿Quieres que prepare una tabla comparativa entre Java, C++ y C#?
 
+**Clase toría**
+En java protected, solo se ve desde las subclases, "package-private" o sen modificador, solo se ven desde el paquete.
+En C++ existen tambien clases amigas.
+
 
 ## 8. Responde: Los miembros de instancia privados de un objeto están ocultos para (a) otras clases o (b) otras instancias, aunque sean de la misma clase. Pon un ejemplo añadiendo un método `calcularDistanciaAPunto(Punto otro)` y explica la respuesta.
 
@@ -139,6 +164,9 @@ Así, aunque la idea básica de visibilidad pública o privada es común a la ma
 **Respuesta breve:** En Java, los **miembros de instancia `private`** están **ocultos para otras clases**, pero **no** están ocultos **entre instancias de la misma clase**. Cualquier método definido dentro de la clase puede acceder a los campos `private` **tanto del propio objeto (`this`) como de otro objeto** del mismo tipo recibido como parámetro. Por tanto, la opción correcta es **(a) otras clases**; **no** se ocultan frente a **(b) otras instancias** si el acceso ocurre **dentro** del código de la propia clase.
 
 Esto ocurre porque la visibilidad `private` se aplica **a nivel de clase**, no a nivel de objeto. La regla indica que *solo el código de la clase* puede acceder a sus miembros privados; si se dispone de una referencia a otro objeto de esa misma clase, ese mismo código puede leer o modificar sus campos privados. Esto permite escribir métodos que comparan o combinan el estado de dos instancias sin romper la encapsulación, ya que el acceso sigue estando controlado y localizado en el interior de la clase.
+
+**Clase toría**
+Está oculto para el código de otras clases.
 
 **Ejemplo con `calcularDistanciaAPunto(Punto otro)`:**
 
@@ -186,6 +214,9 @@ Por otro lado, un **método *setter*** se utiliza para **modificar el valor de u
 
 En conjunto, los *getter* y *setter* constituyen una parte importante de la **interfaz pública** de una clase cuando se desea exponer ciertos datos sin sacrificar la encapsulación. No obstante, en un diseño orientado a objetos bien estructurado, suelen recomendarse solo cuando es necesario: si la clase puede ofrecer un comportamiento más abstracto en vez de exponer atributos directamente mediante *getters* y *setters*, se preserva mejor la encapsulación y la autonomía del objeto.
 
+**Clase toría**
+Métodos que permiten dar acceso controlado a tributos privados para obtener su valor o cambiarlo
+
 
 ## 10. Cuando nos referimos a que la ocultación de información mejora la "seguridad" del programa, ¿nos referimos a que no pueda ser "hackeado"?
 
@@ -196,6 +227,9 @@ No, cuando en POO se dice que la **ocultación de información mejora la “segu
 La ocultación de información aumenta la **seguridad lógica del programa**, porque impide que partes externas modifiquen atributos sensibles sin pasar por métodos controlados. Gracias a ello, la clase puede mantener sus invariantes, evitar estados inconsistentes y protegerse de errores provocados por un mal uso involuntario. Se trata de prevenir fallos de programación, no ataques maliciosos.
 
 Por tanto, la “seguridad” en este contexto significa que el objeto se **protege frente a usos indebidos dentro del propio código del desarrollador**, no frente a amenazas externas. La encapsulación ayuda a que el software sea más robusto, fácil de mantener y menos propenso a errores, pero no constituye un mecanismo de defensa ante vulnerabilidades de seguridad informática.
+
+**Clase toría**
+**NO**, no es ciberseguridad, es facilitar una programación con menos bugs.
 
 
 ## 11. ¿Qué diferencia hay entre **miembro de instancia** y **miembro de clase**? ¿Los miembros de clase también se pueden ocultar?
@@ -210,6 +244,10 @@ Respecto a la visibilidad, **los miembros de clase también pueden ocultarse**. 
 
 Así, tanto los miembros de instancia como los de clase pueden beneficiarse de la encapsulación. La diferencia está en su ámbito: los primeros pertenecen a cada objeto y los segundos son compartidos por todos ellos. Pero ambos pueden ser públicos o privados según lo que convenga al diseño, permitiendo controlar la interfaz pública y preservar la coherencia del estado interno, ya sea individual o compartido.
 
+**Clase toría**
+Un miembro de clase -> Non asociado a ninguna instacia comcreta, es compartida por todas las instancias. En métodos no hai **this.**.
+
+Miembro instancia -> está asociado a cada instancia, no son compartidas
 
 ## 12. Brevemente: ¿Tiene sentido que los constructores sean privados?
 
@@ -223,6 +261,11 @@ Otra situación donde un constructor privado tiene sentido es cuando se quiere o
 
 En resumen, aunque la mayoría de clases utiliza constructores públicos, declarar un constructor como privado puede ser una herramienta útil para controlar el proceso de creación de instancias. Esto permite reforzar la encapsulación, proteger invariantes y guiar al usuario hacia formas de construcción más claras y seguras. ¿Quieres que prepare un ejemplo de un Singleton o una clase con factory methods?
 
+**Clase toría**
+Si que tiene sentido a veces:
+Un constructor auxiliar oculto.
+Cuando preferimos usar metodos factoria.
+Cuando queremos controlar el numero de instacias.
 
 ## 13. ¿Cómo se indican los **miembros de clase** en Java? Pon un ejemplo, en la clase `Punto` definida anteriormente, para que incluya miembros de clase que permitan saber cuáles son los valores `x` e `y` máximos que se han establecido en todos los puntos que se hayan creado hasta el momento.
 
@@ -400,6 +443,11 @@ Este tema está íntimamente relacionado con las **invariantes de clase**. Una i
 
 En resumen, aunque pueda parecer más simple hacer un atributo público cuando existe un *getter* y un *setter*, lo adecuado es mantenerlo **privado**. Esto protege la estructura interna del objeto, permite asegurar las invariantes y garantiza que la clase conserve el control sobre cómo se utiliza su propio estado.
 
+**Clase toría**
+Si los hago publicos se tienen para garantizar la invariante de clase.
+
+**Convencion** siempre en privado, se emplean metodos de validación.
+
 
 ## 17. ¿Qué significa que una clase sea **inmutable**? ¿qué es un método modificador? ¿Un método modificador es siempre un "setter"? ¿Tiene ventajas que una clase sea inmutable?
 
@@ -412,6 +460,11 @@ Un **método modificador** es cualquier método que **alteré el estado interno*
 Las clases inmutables tienen varias ventajas importantes. En primer lugar, **evitan problemas de concurrencia**, porque si el estado no cambia, varios hilos pueden usar el mismo objeto sin necesidad de sincronización. Esto también las hace más sencillas de analizar y depurar, ya que no hay que buscar dónde o cuándo se modificó un atributo. Además, las invariantes de clase son más fáciles de mantener en objetos inmutables: si los atributos sólo se establecen en el constructor, no existen escenarios en los que el objeto quede en un estado inválido debido a cambios posteriores. Esa estabilidad también favorece la reutilización y evita efectos secundarios inesperados.
 
 En resumen, una clase inmutable ofrece un comportamiento más predecible, seguro y fácil de usar en entornos complejos. Aunque su coste sea crear más objetos en lugar de modificar los existentes, en la práctica este coste suele ser pequeño comparado con los beneficios en claridad, robustez y protección de invariantes. Por ese motivo, muchos lenguajes modernos y librerías estándar emplean ampliamente la inmutabilidad como patrón de diseño recomendado.
+
+**Clase toría**
+Inmutable -> Estado no cambia
+Modificador-> Cualquier método que cambie el estado inerno, por ejemplo un setter.
+Las clases inmutables tiene ventajas por eso es recomendable no hacer clases mutables como primera opcion.
 
 
 ## 18. ¿Es recomendable incluir métodos "setter" siempre y como convención?
@@ -426,6 +479,8 @@ Además, evitar setters innecesarios **protege las invariantes de clase**. Si lo
 
 En resumen, los setters deben incluirse **solo cuando sean necesarios** desde el punto de vista del diseño y del comportamiento del objeto, no como una convención automática. Evitarlos cuando no se requieren conduce a clases más seguras, fáciles de mantener, coherentes y robustas.
 
+**Clase toría**
+**NO**
 
 ## 19. ¿La clase `String` en Java es mutable o inmutable? ¿Qué ocurre al concatenar dos cadenas? ¿Qué debemos hacer si vamos a hacer una operación que implique concatenar muchas veces para construir paso a paso una cadena muy larga?
 
