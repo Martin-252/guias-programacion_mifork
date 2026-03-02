@@ -494,6 +494,10 @@ Si es necesario realizar una operación que **construye paso a paso una cadena l
 
 En conjunto, la inmutabilidad de `String` aporta seguridad y claridad al código, pero para situaciones donde la eficiencia en concatenaciones es importante, las alternativas mutables como `StringBuilder` representan una solución más adecuada.
 
+**Clase toría**
+String en Java es inmutable, es decir, no tiene metodos que le permitan cambiar el valor
+StringBuilder seria algo así como una "String mutable", que concatena Strings con appends y despues se llama a build y devuelve un unico String
+
 
 ## 20. En POO ¿Cómo se comparan objetos de una misma clase? ¿Por su contenido o por su identidad? ¿Qué es el método equals en Java? ¿Qué hace por defecto? ¿Cómo se deben comparar dos cadenas en Java? 
 
@@ -507,6 +511,17 @@ En el caso concreto de las cadenas, Java sobrescribe `equals` en la clase `Strin
 
 En resumen, en POO la comparación puede hacerse según la identidad o según el contenido, pero en Java se reserva `==` para la primera y el método `equals` para la segunda. La implementación por defecto de `equals` no compara contenido, por lo que conviene sobrescribirlo cuando la clase representa un valor lógico. En el caso de las cadenas, la comparación debe hacerse mediante `equals`, ya que ha sido cuidadosamente redefinido para comprobar carácter a carácter.
 
+**Clase toría**
+Se pueden comparar objetos por:
+A) Identidad -> mismo objeto en memoria -> ""=="" -> if(ob1 == ob2)
+B) Contenido -> mismo estado o valor de sus atributos "".equal()""->  ob1.equal(ob2)
+
+String s1 = new String ("Hola")
+String s2 = new String ("Hola")
+if(s1 == s2) -> Devolve falso xa que non é a mesma posición de memoria
+if(s1.equal(s2)) -> True
+
+**Importante** el metodo .equal por defecto en un clase hace una comparacion por indentidad ""=="" excepto en clases donde se implementa una comparación por cintenido Ej.:-> String
 
 ## 21. ¿Qué son las clases "wrapper" en un lenguaje de programación orientado a objetos? ¿Cómo se hace? ¿Es un proceso automático? ¿Qué ventajas tienen? ¿Todos los lenguajes orientados a objetos tienen tipos primitivos y necesitan wrappers? 
 
@@ -521,6 +536,24 @@ Las clases wrapper ofrecen varias ventajas. Permiten almacenar valores primitivo
 No todos los lenguajes orientados a objetos tienen tipos primitivos separados y, por tanto, no todos necesitan wrappers. Lenguajes como **Python**, **Ruby** o **Scala** tratan todos sus valores como objetos, por lo que no requieren esta distinción. En cambio, lenguajes como **Java**, **C#** o **Kotlin** mantienen tipos primitivos por eficiencia y aportan wrappers para integrarlos en el mundo de los objetos. Así, la necesidad de wrappers depende del diseño del lenguaje y del equilibrio que busque entre rendimiento y pureza orientada a objetos.
 
 
+**Clase teoría**
+El Wrapper se da en lenguajes con tipos de datos primitivos como es java, (otros lenguajes como python no tiene tipos de datos primitivos).
+En los lenguajes con tipos de datos primitivos existen un envolvente para cada uno, Ej: Java:
+int -> Integer
+float -> Float
+char -> Character
+Suelen llamarse de la misma forma o de la forma no abreviada con la primera letra mayúscula.
+
+Existe el Autoboxing (meter un int en un Integer) y le Unboxing (de un Integer sacar un int)
+
+Ej:
+Integer i= 7i; // Autoboxing
+Integer = new Integer (7);
+
+int j = i; // Unboxing
+int j = i.intValue(); 
+
+
 ## 22. ¿En POO qué es un **tipo de dato enumerado**? ¿En Java, un tipo de dato enumerado es una clase? ¿Qué ventajas tienen en términos de encapsulación los enumerados en Java?
 
 ### Respuesta
@@ -532,6 +565,11 @@ En **Java**, un tipo enumerado (`enum`) es realmente una **clase especial**. Aun
 Los enumerados de Java ofrecen ventajas importantes en términos de **encapsulación**. Al definir un conjunto cerrado de valores, impiden que el código externo introduzca valores inválidos, eliminando errores comunes asociados a constantes numéricas o cadenas. Además, al tratarse de clases, permiten ocultar detalles internos, añadir métodos que encapsulen comportamiento relacionado y mantener invariantes entre los valores. Todo el uso externo se realiza a través de la interfaz pública bien definida del `enum`, reforzando la idea de que el interior se mantiene controlado y protegido.
 
 En consecuencia, los enumerados en Java combinan la seguridad de tipos con una encapsulación fuerte y una representación clara del dominio del problema. Esto los hace especialmente útiles en diseños orientados a objetos donde se desea expresar modelos precisos y evitar valores no válidos desde el propio tipo de dato. ¿Quieres que prepare un ejemplo completo de `enum` con métodos y encapsulación interna?
+
+
+**Clase toría**
+Enumerado es un tipo con un numero determinado de valores posibles.
+En Java un enum. es una clse cuyas instancias son finitas conocidas de antemano y tienen nombre cada una (Valor del enumerado)
 
 
 ## 23. Crea un tipo enumerado en Java que se llame `Mes`, con doce posibles instancias y que además proporcione métodos para obtener cuántos días tiene ese mes, el ordinal de ese mes en el año (1-12), empleando atributos privados y constructores del tipo enumerado. Añade además cuatro métodos para devolver si ese mes tiene algunos días de invierno, primavera, verano u otoño, indicando con un booleano el hemisferio (norte o sur, parámetro `enHemisferioNorte`). Es decir: `esDePrimavera(boolean esHemisferioNorte)`, `esDeVerano(boolean esHemisferioNorte)`, `esDeOtoño(boolean esHemisferioNorte)`, `esDeInvierno(boolean esHemisferioNorte)`
