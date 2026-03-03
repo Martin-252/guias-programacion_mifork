@@ -77,6 +77,8 @@ int main(void) {
 }
 ```
 
+**Clase teoría**
+Algunas de las formas de "interpretar una excepcion" en C es devolviendo un valor especial como el -1, o con un parametro adicional para almacenar el código de error.
 
 
 
@@ -91,6 +93,14 @@ El propósito principal de usar excepciones al **implementar funciones** es sepa
 Cuando un programador **llama** a funciones que pueden lanzar excepciones, su objetivo es capturar y gestionar esos fallos de forma clara, evitando que el programa complete acciones incorrectas o termine abruptamente. Además, el manejo de excepciones permite decidir qué hacer ante cada tipo de problema: desde mostrar un mensaje al usuario hasta intentar una recuperación o registrar el error.
 
 En conjunto, las excepciones proporcionan un modo formal, flexible y seguro de comunicar errores que no se puede resolver en el punto donde ocurren. Permiten mantener separado el flujo normal del flujo de error y facilitan que distintos niveles del programa colaboren en la detección y resolución de fallos.
+
+
+**Clase teoría**
+Exepción -> surge en situaciones atipicas y esto nos sirve:
+
+Cuando implementamos una función nos permite indicar más claramente el error.
+
+Cuando llamamos, me facilita separar la lógica normal de la reacción o manejo de la situación erronea.
 
 
 
@@ -146,21 +156,56 @@ Este diseño permite que `Calculadora.raiz` exprese claramente su **contrato**: 
 
 ### Respuesta
 
+“**Lanzar**” una excepción consiste en indicar explícitamente que se ha producido una situación anómala y que el flujo normal de ejecución no puede continuar en ese punto. En Java se hace con la instrucción `throw`. Cuando se lanza una excepción, el método deja de ejecutarse inmediatamente y no retorna ningún valor normal. Esto permite separar la lógica correcta de la lógica de error, de modo que una función como `raiz` no tenga que decidir cómo informar: solo declara la anomalía y delega la responsabilidad en quien la invoque.
+
+“**Controlar**” o **“capturar”** una excepción significa envolver el código que puede fallar en un bloque `try` y proporcionar uno o varios bloques `catch` para interceptar excepciones concretas. En estos bloques se decide qué hacer: informar al usuario, registrar el error, recuperar el estado, etc. Controlar no es obligatorio; si una función no captura la excepción, simplemente la deja pasar hacia arriba. Esa capacidad de dejar que otra parte del programa gestione el error es una ventaja fundamental del sistema de excepciones.
+
+La **“propagación”** de una excepción ocurre cuando ningún método en la cadena de llamadas la captura. Tras lanzarse, Java busca un bloque `catch` adecuado en el método actual; si no existe, el método **termina abruptamente**, se destruyen sus variables locales y la excepción se envía al método que lo llamó. Este proceso se repite hacia arriba por la **pila de llamadas**, haciendo que cada función que no capture la excepción termine de inmediato sin ejecutar el resto de su código. Ninguno de estos métodos se reanuda después: una vez interrumpidos por la propagación, no continúan en el punto donde quedaron, solo pueden terminar o dejar paso a otro `catch` en niveles superiores.
+
+Aplicándolo al ejemplo de `Calculadora.raiz`, si `raiz(x2)` recibe un número negativo, ejecuta `throw new IllegalArgumentException(...)`. El método abandona su ejecución al instante y la excepción sube al `main`. En `main`, el primer bloque `try` no sufre problemas, pero el segundo provoca que la ejecución salte directamente al bloque `catch (IllegalArgumentException e)`. Desde el punto donde se lanza la excepción dentro de `raiz`, el resto del método no se ejecuta, y tampoco se ejecutaría el código restante dentro del `try` de `main` si dicho código existiera después de la llamada. El método que no captura la excepción no vuelve a retomarse; únicamente “cede el control” al manejador que la capture o, en ausencia de tal manejador, el programa finaliza con un error no controlado.
+
 
 ## 5. ¿Qué ventajas tiene frente a C, la **"propagación natural"** de las excepciones a través de la pila (*stack*) de llamadas?
 
 ### Respuesta
+La **propagación natural de excepciones** ofrece una ventaja fundamental respecto a C: elimina la necesidad de comprobar manualmente códigos de error en cada llamada intermedia. En C, si una función detecta un problema, lo habitual es devolver un valor especial o un código de estado, y cada función que esté por encima en la cadena de llamadas debe comprobar explícitamente ese código y retransmitirlo si no puede resolverlo. Esto llena el programa de comprobaciones repetitivas y obliga a que todos los niveles conozcan detalles del error, incluso cuando no tienen capacidad para manejarlo.
+
+Con excepciones, en cambio, un método puede limitarse a **lanzar** la anomalía y dejar que el runtime de Java busque automáticamente un manejador adecuado. La propagación recorre la pila sin necesidad de escribir ningún código adicional en las funciones intermedias. Esto permite que funciones que solo colaboran en el cálculo —pero que no tienen sentido para informar o decidir qué hacer ante un error— permanezcan limpias y centradas en su tarea, dejando el manejo a un nivel superior que sí tiene contexto para reaccionar correctamente.
+
+Otra ventaja es que la propagación asegura que, cuando se produce un error, las funciones que no lo controlan **no continúan en un estado inconsistente**. En C, si el programador olvida comprobar un código de error o lo comprueba mal, el programa puede seguir ejecutándose con datos incorrectos, lo que hace más difícil detectar fallos. Con excepciones, la interrupción inmediata de la ejecución evita estos problemas silenciosos, ya que el flujo normal solo continúa si no ha ocurrido ninguna anomalía.
+
+Finalmente, la separación entre flujo normal y flujo de error conduce a programas más legibles y más fáciles de mantener. La lógica de éxito se expresa sin ruido, mientras que la lógica de error se concentra en puntos claros (`try/catch`). En conjunto, la propagación automática reduce duplicación, evita errores por omisión de comprobaciones y facilita estructurar el programa de forma más ordenada que en el enfoque tradicional de C.
+
 
 
 ## 6. En orientación a objetos, ¿las excepciones suelen ser objetos? ¿Qué ventajas tiene esto en términos de encapsulación? ¿Podemos entonces crear excepciones personalizadas?
 
 ### Respuesta
+En la mayoría de lenguajes orientados a objetos, como Java, las excepciones **son objetos** que derivan de una jerarquía común (por ejemplo, `Throwable`). Esto significa que encapsulan información relevante sobre el error: el tipo de problema, un mensaje descriptivo e incluso la traza de la pila. En lugar de limitarse a un simple código numérico, permiten representar el fallo como una entidad estructurada, con datos y comportamiento asociados, lo que encaja naturalmente en el paradigma orientado a objetos.
+
+En términos de **encapsulación**, esta estrategia ofrece la ventaja de agrupar todos los detalles del error dentro del propio objeto‑excepción. Así, los métodos que lanzan la excepción no necesitan exponer internamente cómo detectan o representan el fallo; basta con lanzar un tipo concreto. A su vez, el código que captura la excepción puede acceder únicamente a la información que realmente necesita (mensaje, causa interna, etc.) sin depender del estado interno del método que la generó. Esto reduce el acoplamiento y permite interfaces más limpias.
+
+Además, el hecho de que una excepción sea un objeto hace posible **crear excepciones personalizadas** simplemente definiendo nuevas clases que hereden de `Exception` o de otra clase de la jerarquía. Este mecanismo es útil cuando se quiere clasificar con más precisión el tipo de error o distinguir semánticamente diferentes categorías dentro de un mismo dominio de aplicación. Por ejemplo, se podrían definir excepciones como `ExcepcionEntradaInvalida` o `ExcepcionCalculoMatematico`, cada una con su propio propósito.
+
+En conjunto, tratar las excepciones como objetos favorece claridad, extensibilidad y un estilo de programación más modular. Permite diseñar un sistema de errores que represente fielmente los posibles problemas de la aplicación y que pueda ampliarse conforme crezca el programa, manteniendo siempre el control encapsulado y consistente.
+
+**Clase teoría**
+En java las execpciones si que suelen ser objetos.
 
 
 ## 7. En relación con las ventajas de la encapsulación, comparando el ejemplo en C con Java. ¿Qué **información esencial** lleva cualquier **objeto excepción** que es muy útil tener cuando se llega a un manejador?
 
 ### Respuesta
+Una excepción en Java llega a un manejador acompañada de **información esencial que queda encapsulada dentro del propio objeto**, algo que no existe de forma tan completa en C. El elemento más útil es la **traza de la pila** (*stack trace*), que recoge la secuencia exacta de llamadas que condujeron al error. Esta información permite localizar con precisión dónde ocurrió el problema y en qué contexto, algo especialmente valioso en programas grandes o con muchas capas de funciones.
 
+Además, cada excepción incluye un **mensaje descriptivo** que explica la causa del fallo, así como una posible **causa anidada** (*cause*) si la excepción fue desencadenada por otra. Esta capacidad de transportar contexto detallado evita depender de códigos numéricos ambiguos o convenciones externas, como ocurre en C. El desarrollador que captura la excepción puede distinguir no solo el tipo de error, sino también su origen y la información que el método que la lanzó decidió considerar relevante.
+
+Finalmente, el propio **tipo concreto** del objeto excepción ya actúa como información esencial: permite diferenciar con claridad categorías de errores mediante la jerarquía de clases (`IllegalArgumentException`, `ArithmeticException`, etc.). Esto simplifica los manejadores y permite capturar únicamente aquellas situaciones que realmente interesan. En conjunto, disponer de tipo, mensaje y traza encapsulados dentro de la excepción proporciona una capacidad de diagnóstico muy superior a la disponible en C.
+
+**Clase teoría**
+a) Un mensaje (getMessage).
+b) La traza de la pila (getStackTrace, printstackTrace).
+c)Opcionalmente las "causa", es otra execpción que es la verdadera causa.
 
 ## 8. En Java, sobre el bloque **"try-catch"**, ¿se pueden tener más de un bloque `catch`? ¿cuántos bloques `catch` se ejecutan?
 
