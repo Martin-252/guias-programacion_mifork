@@ -62,6 +62,21 @@ int main(void) {
 
 Obsérvese que la **composición** queda reflejada en que `Linea` contiene directamente a `Punto` como campos (no referencias externas), lo que implica pertenencia fuerte: los puntos `a` y `b` “viven” dentro de la línea. Alternativamente, si se prefieren estructuras más flexibles, podría componerse mediante **punteros** a `Punto` (por ejemplo, para compartir puntos entre varias líneas), pero para fines didácticos la composición por valor es más simple y suficiente.
 
+**Clase teoría**
+```java
+    class Punto {
+        private double x;
+        provate double y;
+        public Punto (double x, double y){
+            ------
+        }
+        //encapsulado dentro de Punto metemos la función distancia
+        public distancia ( Punto p2){
+            return ----------
+        }
+    } 
+```
+
 
 
 ## 2. Ahora transforma ese ejemplo a orientación a objetos con Java, para tener un primer ejemplo de **composición** en orientación a objetos. Crea una clase `Punto`, y una clase `Linea`. La clase `Punto` debe tener un método para calcular distancia a otro `Punto` y `Linea` debe tener un método para calcular su longitud. Gracias a la ocultación de información, supera a C, garantizando que los puntos sean inmutables, al igual que la línea, que una vez creada, no queremos que se modifique de qué a qué puntos va dicha línea.  
@@ -144,6 +159,9 @@ class Demo {
 
 En este diseño, `Linea` **compone** dos `Punto`: la vida de los extremos está conceptualmente ligada a la línea que los usa, y al ser `Punto` inmutable, no hay riesgo de que cambien desde fuera. La **encapsulación** evita exponer detalles internos que permitan modificación, y la **inmutabilidad** se obtiene marcando campos `private final`, sin *setters* y con validaciones de entrada. Si en otro contexto `Punto` fuera mutable, sería recomendable **copiar defensivamente** en el constructor y en los *getters* para preservar la inmutabilidad observada de `Linea`.
 
+**Clase teoría**
+No podemos porque la clase linea tal y como la tenemos es inmutable
+Y perdemos el control que tiene otros programadores sobre nuestras clases 
 
 ## 3. ¿Qué significa la **multiplicidad** en la composición? En el ejemplo anterior, ¿cuál es la multiplicidad entre `Linea` y `Punto`? Indícalo expresando la multiplicidad en ambas direcciones, de `Linea` a `Punto` y de `Punto` a `Linea`.
 
@@ -160,8 +178,10 @@ De este modo, la composición completa puede resumirse, en notación habitual, c
 **Linea (2) —— (1) Punto**,  
 siendo una relación “fuerte” donde los puntos forman parte estricta de la línea y su existencia está conceptualmente ligada a ella.
 
-
-
+**Clase teoría**
+En palabras: 
+1 Linea se relaciona como minimo con 2 Puntos y como maximo con 2 Puntos
+1 Puntos se relaciona como minimo con 0 Lineas y como maximo con muchas Lineas
 ## 4. ¿Qué significa composición **fuerte** y composición **débil**? ¿Qué consecuencia implica en relación al ciclo de vida de los objetos? Indica a cuál solemos referirnos como **"asociación o agregación"** y a cuál como **"composición"** propiamente.
 
 ### Respuesta
@@ -173,7 +193,16 @@ En terminología habitual de UML y de diseño orientado a objetos, la **composic
 
 En cambio, la **composición fuerte** es la que suele denominarse **composición** propiamente dicha. Representa relaciones rígidas de pertenencia y dependencia vital: las partes forman parte integrante y esencial del objeto compuesto. Esta diferencia guía muchas decisiones de diseño, como si deben hacerse copias defensivas, si los objetos deben ser inmutables o si deben ser compartidos entre múltiples entidades.
 
+**Clase teoría**
+`Composición Fuerte VS Débil`
 
+La composición fuerte quiere decir que el contenedor (p.ej. Linea) es el que crea los onjetos que contiene (p.ej. Punto) y estos no viven más allá del contenedor. El ciclo de vida el contenido esta vinculado al contenedor
+
+La débil es el Conetedor y el Contenido, tiene ciclos de vida independiente(p.ej. Los obejetos Punto pueden vivir sin estar en Objetos Linea)
+ 
+ La más habitual en java suele ser la débil, como el ejemplo de la clase.
+ En UML la composición propiamente sería la fuerte y la asociación o gregación sería la débil.
+ Y en UML usamos rombos para expresar que el contenedor es un contenedor y poco más.
 
 ## 5. Cuando una clase usa a otra al recibirla o devolverla como parámetro en algún método, al hacer `new` dentro de un método, o al usarlas como variables locales, ¿hablamos de composición o de **"dependencia"**?
 
@@ -186,6 +215,17 @@ En cambio, la composición aparece solo cuando el objeto “todo” **posee** a 
 
 Por tanto, al usar objetos como parámetros, retornos, variables temporales o instancias creadas en métodos, la relación correcta es **dependencia**, no composición. Esta clasificación ayuda a mantener un modelo conceptual claro y a distinguir entre lo que una clase *usa* para trabajar y lo que una clase *contiene* como parte esencial de su identidad.
 
+**Clase teoría**
+```java
+public String toString(){
+    StringBuilde sb = new StringBuilder
+}
+class OperadorFichero{
+    public static String leerFichero(Path p)
+}
+//En niguno de estos casos son composicion, estos son ejemplos de dependencia
+```
+E.J. Punto depende de String y StringBuilder y sin esos no compila
 
 ## 6. En el ejemplo anterior de línea y punto, programa la relación entre `Linea` y `Punto` de dos formas. Una **como composición fuerte**, donde el ciclo de vida de los puntos está ligado al de Linea y otra **como composición débil**, donde no.
 
@@ -322,27 +362,205 @@ class DemoDebil {
 
 **Resumen clave**: en la variante **fuerte**, los puntos se crean y viven dentro de `Linea`, no se exponen y desaparecen con ella; se materializa la propiedad y el control del ciclo de vida. En la variante **débil**, `Linea` mantiene **referencias compartibles** a puntos externos, que pueden mutar o sobrevivir sin la línea; su relación es de **agregación**. Si se desea debilidad *sin* mutabilidad, basta con hacer `Punto` inmutable y seguir pasando referencias (sin copias internas), lo que mantiene la independencia del ciclo de vida.
 
+**Clase teoría**
+Ejemplo de composición fuerte
+```java
+class Linea {
+    private Punto p1;
+    private Punto p2;
+    public Linea(double x1, double y1, double x2, double y2){
+        this.p1 = new Punto(x1,y1);
+        this.p1 = new Punto(x2,y2);
+    }
+    public getPunto() {return this.p1} // non se pode ter
+    public getX1() {return this.p1.getX()}
+}
+ ```
+
 
 
 ## 7. En Java, en la composición fuerte, ¿cuando el contenedor destruye los objetos? No se observa que `Linea` destruya los `Punto` explícitamente, ¿Por qué?
 
 ### Respuesta
-
+**Clase teoría**
+No se ve el codigo de eliminación de los puntos porque en Java la vida de Punto acaba cuando es inaccesible y en el ejemplo ocurre cuando linea deja de serlo a su vez. Por tanto cuando Linea "es basura" tambien lo seran sus puntos, y seran eliminados de memoria por el recolector de basura. 
 
 ## 8. Pon un ejemplo de composicion débil entre un departamento que tiene varios profesores. Implementa dos composiciones a la vez: entre el departamento y todos sus profesores y entre el departamento y su director, que es un profesor del departamento. Siempre debe haber un director en el departamento desde el inicio. Lanza excepciones si se viola la invariante. Emplea arrays primitivos de Java, estilo `Profesor[]`, con máximo 50, pero no rompas la encapsulación, no desveles que estás empleando un array, permite añadir un `Profesor` al final de la lista, y eliminar un profesor dada su posición. Da acceso a los profesores con un método para saber cuántos hay y otro para obtener un profesor por posición. El director se puede cambiar por otro profesor del departamento. Sin embargo, ten en cuenta esta invariante de clase: el director debe formar siempre parte de la lista de profesores, es decir, ten cuidado al cambiar el director o al eliminar un profesor.
 
 ### Respuesta
+**Clase teoría**
+```java
+public class Profesor{
+    private String nombre;
+    public Profesor(){}
+    getNombre
+}
 
+public class Departamento {
+    //composicion debil 1
+    //como minimo un departamento y como maximo muchos profesores 
+    //1  profesor como minimo 0 y como maximo muchos departamentos  
+    private Profesor [] profesores = new Profesor [50];
+    private int numProfesor = 0; 
+
+    //composivion debil 2:
+    //1 deparyamento tiene como minimo 1 y como macimo 1 profesor director***
+    // 1 Profesor puede ser irector como minio de 0 y como macumo de muchos Departamentos
+    private Profesor director;
+    public Departamento (Profesor director){
+        // si directo es null lanzamos IAE
+        //1. añadimos el director al conjunto de profesores
+        //2. Establecemos ese profesor como director
+    }
+
+    public int getNumProfesores( ) { return this.numProfesores;}
+    public getProfesor gerProfesor (int pos) {
+        //0. validamos pos y si no valida lanzamos IAE
+        return this.profesores[pos];
+    }
+    public void addPorfesor(Profesor p){
+        //0. lanza IAE si no hay sitio
+    }
+    public void eliminarProfesor(int pos){
+        //0. si pos no esta en el rango correcto 0-numProf, lanza IAE
+        //1. si el profesor en pos es el director lanzar IAE
+    }
+    public void cambiarDirector(Profesor nuevoDirector){
+        //Si nuevo director == null IAE
+        // si nuevoDirector no lo encuentro , lanza IAE diciendo que hay que meterlo en el departamento primero
+    }
+    public Porfesro getDirector() {return this.director}
+}
+```
+-Hay 2 composiciones débiles 
+-No se expone el array al exterior (imposible garantizar invariante de clase)
+-En los métodos que gestionan el departamento se controla que no se viole la invariante de clase
 
 ## 9. En Java, existen también `List`, cambia y muestra cómo sería el código anterior empleando `List` en vez de arrays primitivos. ¿Qué parte del código original te has ahorrado? Además, fíjate en el método `getProfesor(int pos)`: si en su lugar existiera un método que devolviera todos los profesores a la vez, ¿qué problema tendría devolver directamente la lista interna? ¿Cómo lo resolverías?
 
 ### Respuesta
+
+```java
+public class Profesor{
+    private String nombre;
+    public Profesor(){}
+    getNombre
+}
+
+public class Departamento {
+    //composicion debil 1
+    //como minimo un departamento y como maximo muchos profesores 
+    //1  profesor como minimo 0 y como maximo muchos departamentos  
+    private Profesor [] profesores = new Profesor [50];
+    private int numProfesor = 0; 
+    // composicion débil 1 (version 2 con List)
+    provate <Profesor> porfesores = new ArrayList<>();
+
+    //composivion debil 2:
+    //1 deparyamento tiene como minimo 1 y como macimo 1 profesor director***
+    // 1 Profesor puede ser irector como minio de 0 y como macumo de muchos Departamentos
+    private Profesor director;
+    public Departamento (Profesor director){
+        // si directo es null lanzamos IAE
+        //1. añadimos el director al conjunto de profesores
+        //2. Establecemos ese profesor como director
+    }
+
+    public int getNumProfesores( ) { return this.numProfesores;}
+    public getProfesor gerProfesor (int pos) {
+        //0. validamos pos y si no valida lanzamos IAE
+        return this.profesores[pos];
+    }
+    public void addPorfesor(Profesor p){
+        //0. lanza IAE si no hay sitio
+    }
+    public void eliminarProfesor(int pos){
+        //0. si pos no esta en el rango correcto 0-numProf, lanza IAE
+        //1. si el profesor en pos es el director lanzar IAE
+    }
+    public void cambiarDirector(Profesor nuevoDirector){
+        //Si nuevo director == null IAE
+        // si nuevoDirector no lo encuentro , lanza IAE diciendo que hay que meterlo en el departamento primero
+    }
+    public Porfesro getDirector() {return this.director}
+
+    public List<Profesores> getProfesores(){
+        return this.profesores; //NOOOOOOOOOOOOOOOOOOOOOOOO!!!!!!!!!
+    }// la lista es mutable asi que perdemos la invariante de clase
+    // si queremos que se use esta interfaz pero solo para recorrerlos y no para modificar, podemos devolver una copia de la lista o devolver un envoltorio no mutable
+}
+```
+Con list no cambia la interfaz publica, algunos metodos son más faciles de implementar delegandolos en metodos de list. Si se devuelve hay que devolver una copia para proteger la invariante de clase.
 
 
 ## 10. Al igual que ocurre con las excepciones en Java, que pueden encerrar causas (que son excepciones), de forma recursiva, suponen un tipo especial de composiciones, denominadas composiciones recursivas. Pon un ejemplo en Java de una `Persona`, que sea inmutable, y que tiene una madre, que es otra `Persona`. Haz un main con un ejemplo de uso con una familia de personas, desde el nieto hasta la abuela. Enumera algún otro ejemplo clásico de composiciones recursivas.
 
 ### Respuesta
 
+A continuación se presenta un ejemplo de **composición recursiva** en Java. Se modela una clase `Persona` **inmutable**, donde uno de sus campos es **otra `Persona`** que representa la madre. Este tipo de diseño se denomina *composición recursiva* porque una instancia contiene otra instancia del mismo tipo, lo que permite formar estructuras encadenadas como árboles genealógicos, listas enlazadas, nodos de expresión, etc.
+
+El diseño se hace inmutable declarando los campos como `private final`, sin *setters* y validando los datos en el constructor. La madre puede ser `null` si se quiere permitir que una persona no tenga registrada a su madre (por ejemplo, en el caso de la antepasada más lejana conocida). El método `toString()` se implementa mostrando sólo el nombre para evitar impresiones recursivas infinitas. Este tipo de composición resulta útil para expresar estructuras naturales: cada persona *tiene una madre*, que a su vez *tiene otra madre*, y así sucesivamente.
+
+A continuación se ofrece el código de ejemplo. El método `main` construye una cadena genealógica de tres generaciones: abuela → madre → nieto. Se observa que las tres personas existen por separado, pero quedan conectadas de forma recursiva según el modelo definido. Dado que la clase es inmutable, la estructura genealógica no puede alterarse posteriormente, lo cual facilita el razonamiento sobre el estado del programa.
+
+Código:
+
+```java
+public final class Persona {
+    private final String nombre;
+    private final Persona madre;  // composición recursiva
+
+    public Persona(String nombre, Persona madre) {
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("El nombre no puede ser nulo ni vacío");
+        }
+        this.nombre = nombre;
+        this.madre = madre; // puede ser null si no se conoce
+    }
+
+    public String nombre() { return nombre; }
+    public Persona madre() { return madre; }
+
+    @Override
+    public String toString() {
+        return nombre;
+    }
+
+    public static void main(String[] args) {
+        Persona abuela = new Persona("Carmen", null);
+        Persona madre  = new Persona("Laura", abuela);
+        Persona nieto  = new Persona("Diego", madre);
+
+        System.out.println("Nieto:  " + nieto);
+        System.out.println("Madre:  " + nieto.madre());
+        System.out.println("Abuela: " + nieto.madre().madre());
+    }
+}
+```
+
+Entre los ejemplos clásicos de **composiciones recursivas** pueden citarse:
+
+*   **Listas enlazadas**, donde cada nodo contiene un valor y una referencia al siguiente nodo del mismo tipo.
+*   **Árboles** (binarios o de cualquier aridad), en los que cada nodo contiene referencias a hijos, también del mismo tipo.
+*   **Expresiones sintácticas** (ASTs), donde un nodo puede representar una operación y a su vez contener subexpresiones del mismo tipo.
+
+Este patrón aparece a menudo cuando se modelan jerarquías, familias, estructuras matemáticas y datos encadenados.
+
+
 ## 11. ¿Qué son las relaciones de composición "bidireccionales"? ¿Qué habría que hacer para implementar este tipo de relación en el ejemplo de `Profesor` y `Departamento`?
 
 ### Respuesta
+
+Las **relaciones de composición bidireccionales** aparecen cuando dos clases mantienen referencias *mutuas* como parte de su estructura: cada una “contiene” o “tiene” a la otra. De este modo, el vínculo no es unidireccional, sino que cada objeto conoce al otro como parte de su estado interno. Este tipo de relación exige mantener **coherencia** entre ambos lados, ya que una parte no debería existir sin la otra según el modelo conceptual. Además, al ser bidireccional, hay riesgo de **inconsistencia** si uno de los dos objetos se modifica sin reflejar el cambio en el otro. Por ello, requiere medidas adicionales para garantizar la integridad del sistema.
+
+En el caso del ejemplo clásico de **Profesor ↔ Departamento**, si se desea una composición bidireccional, un `Departamento` tendría una colección de `Profesor` como sus partes, y cada `Profesor` mantendría una referencia a su `Departamento`. Para lograrlo, no basta con establecer estas referencias: habría que asegurar que, cuando un profesor se añade al departamento, el profesor pase a apuntar al mismo departamento; y cuando se elimina, deje de apuntarlo. Esta sincronización debe producirse mediante métodos controlados, evitando exponer estructuras internas que permitan operar en bruto sobre las relaciones.
+
+La implementación típica consiste en hacer que **solo una de las clases gestione la relación**, normalmente el “todo”, como `Departamento`. Por ejemplo, `Departamento` ofrecería métodos `addProfesor(p)` y `removeProfesor(p)`, y dentro de ellos se actualizaría la referencia del profesor (`p.setDepartamento(this)` o `p.setDepartamento(null)`). Además, se impide modificar unilateralmente la relación desde la clase `Profesor` para no romper la consistencia. Esto garantiza que la composición se mantenga estable y que ambos objetos representen el mismo estado del sistema.
+
+En resumen, una composición bidireccional requiere:
+
+1.  **Referencias mutuas** entre las clases.
+2.  **Métodos controlados** para modificar la relación.
+3.  **Sincronización interna** para evitar estados incoherentes.
+
+Este patrón se ve a menudo en modelos donde las relaciones son naturalmente dos direcciones, pero su implementación exige cuidado para evitar inconsistencias y dependencias circulares mal gestionadas.
