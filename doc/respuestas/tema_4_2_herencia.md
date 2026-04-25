@@ -271,6 +271,10 @@ En lenguajes orientados a objetos más flexibles o de bajo nivel, como C++ (cuan
 En Java, en cambio, **sí existe una clase base común para todos los objetos: `java.lang.Object`**. Toda clase que no declare explícitamente una superclase hereda automáticamente de `Object`. Esto implica que absolutamente todos los objetos en Java comparten un conjunto mínimo de métodos comunes, como `toString()`, `equals()`, `hashCode()` o `getClass()`. Esta decisión de diseño simplifica el lenguaje y garantiza que cualquier referencia a un objeto tenga unas capacidades básicas comunes.
 
 Como consecuencia práctica, en Java **siempre existe una jerarquía de herencia**, aunque no se declare de forma explícita. Por ejemplo, `Soldado`, `Artillero` y `Zapador` heredan implícitamente de `Object`, y solo a partir de ahí comienza la herencia definida por el programador. Esto permite escribir código genérico que funcione con cualquier objeto y refuerza la coherencia del sistema de tipos, algo que diferencia claramente a Java de otros lenguajes orientados a objetos como C++.
+**Clase teoría**
+    C++ no tiene una clase base implícita, pero Java si que tiene una clase base implícita la cual es la clase "object".
+En esta clase object encontramos metodos como el toString() por eso en todas las clases se puede llamar a este metodo porque esta implementado ya en la clase object. Otro método es el equals() es este caso es equivalente al "==". 
+
 
 
 ## 8. ¿Qué es la **"herencia múltiple"**? ¿Existe en Java herencia múltiple?
@@ -284,6 +288,9 @@ En **Java no existe herencia múltiple de clases**. Una clase solo puede extende
 Sin embargo, Java sí permite una forma controlada de herencia múltiple mediante **interfaces**. Una clase puede implementar **múltiples interfaces**, lo que le permite prometer que proporciona ciertos métodos, sin heredar estado ni implementación concreta (salvo métodos `default`, introducidos más tarde). Este enfoque separa claramente el *qué* (el comportamiento esperado) del *cómo* (la implementación), logrando muchos de los beneficios de la herencia múltiple sin sus principales inconvenientes.
 
 En resumen, Java **rechaza la herencia múltiple de clases**, pero **acepta la herencia múltiple de comportamiento abstracto a través de interfaces**. Esta solución favorece diseños más claros y evita conflictos complejos, a costa de obligar a una planificación más cuidadosa de la jerarquía de clases y del uso de la composición y las interfaces como mecanismos complementarios.
+
+**Clase teoría**
+La herencia múltiple es heredar de más de una clase. En java no existe la herencia multiple por problemas como la herencia de diamante. Sin enmbargo en leguajes como C++ si que esta implementada esa herencia múltiple.
 
 
 ## 9. Las excepciones en los lenguajes orientados a objetos son objetos. Por tanto, se pueden crear excepciones personalizadas. Pon un ejemplo en Java de una excepción personalizada (`UsuarioNoEncontradoException`), que sea *no controlada* y que además este compuesto con un `Usuario`, para saber qué `Usuario` dio el problema. Permite además que se pueda incluir la causa, es decir, sobrecarga el constructor para tener una versión que permita añadir la causa subyacente. 
@@ -377,6 +384,12 @@ En particular, la subclase queda acoplada no solo a la **interfaz pública** de 
 Por ejemplo, si `Zapador` hereda de `Soldado` y utiliza directamente un atributo `protected nombre`, el funcionamiento de `Zapador` depende de que ese atributo exista, tenga cierto significado y se gestione de una forma concreta. Si `Soldado` cambia su representación interna (por ejemplo, separando nombre y apellidos, o calculando el nombre dinámicamente), la subclase puede verse afectada. En este sentido, la herencia **expone más de lo necesario** a las subclases, mientras que la composición mantiene una encapsulación más fuerte al interactuar únicamente a través de interfaces bien definidas.
 
 Por ello, se dice que la herencia rompe (o relaja) la encapsulación: **las subclases conocen demasiado de sus superclases**. No significa que la herencia sea incorrecta, sino que debe usarse con cuidado y solo cuando exista una relación clara de especialización. Cuando el objetivo es reutilizar comportamiento sin depender de detalles internos, la composición suele preservar mejor la encapsulación y producir diseños más robustos frente al cambio.
+
+**Clase teoría**
+Tanto en la pregunta 10, 11, y 12 se llega a la conclusión de que es mejor no usar herencia **solo** por reutilizar código, debe usarser si se necesita la compatibilidade de tipos.
+-Usar herencia implica un fuerte acoplamiento desde la clase derivada hacia la clase base.
+ ->L clase derivada depende mucho de la base
+    -> Cambios internos en la base podrían llegat a afectar a las derivadas.
 
 
 ## 13. Pongamos un ejemplo de dos alternativas para lo mismo. Tenemos un `Estudiante` y un `Trabajador`, ambos tienen datos en común: el DNI y el nombre. Modelemos esto de dos formas: uno por herencia, con una superclase `Persona`, y otro con composición, con una clase `DatosPersonales`. Se debe recibir una instancia de `DatosPersonales` en el constructor de la clase `Estudiante` y `Trabajador`.
