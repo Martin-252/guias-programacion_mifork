@@ -477,7 +477,54 @@ Este ejemplo ilustra un uso **avanzado y realista de genéricos**, donde no solo
 
 ### Respuesta
 
+Aunque `String` sea un subtipo de `Object`, **no significa que `List<String>` sea un subtipo de `List<Object>`**, mientras que **sí es cierto que `String[]` es subtipo de `Object[]`**. La diferencia se debe a decisiones de diseño distintas en Java para **genéricos** y **arrays**, motivadas principalmente por la seguridad de tipos en tiempo de ejecución y por compatibilidad hacia atrás.
+
+En el caso de los **genéricos**, `List<String>` **no** es subtipo de `List<Object>` porque los genéricos en Java son **invariantes**. Si se permitiera esa relación, sería posible insertar un `Object` cualquiera (por ejemplo, un `Integer`) en una lista que en realidad solo debería contener `String`, rompiendo la seguridad del tipo. Al ser los genéricos implementados mediante *type erasure*, este error no podría detectarse de forma fiable en tiempo de ejecución, por lo que Java lo prohíbe directamente en compilación.
+
+En cambio, los **arrays en Java son covariantes**, lo que significa que `String[]` sí es subtipo de `Object[]`. Esta decisión se tomó por compatibilidad histórica con versiones anteriores del lenguaje. Sin embargo, esta covarianza introduce un problema: permite escribir código que compila pero falla en ejecución. Por ejemplo, si un `String[]` se trata como `Object[]`, es posible intentar almacenar un `Integer`, produciéndose una `ArrayStoreException` en tiempo de ejecución. Es decir, el error no se evita en compilación, sino que se detecta dinámicamente.
+
+A partir de estos ejemplos, se dice que un tipo genérico es **covariante** si `Gen<Subtipo>` es subtipo de `Gen<Supertipo>`; **contravariante** si ocurre a la inversa; e **invariante** si no existe relación de subtipo en ningún sentido, aunque exista entre los parámetros de tipo. En Java, los arrays son covariantes, los genéricos son invariantes por defecto, y la covarianza o contravarianza en genéricos solo puede expresarse de forma controlada mediante comodines (`? extends`, `? super`) para mantener la seguridad de tipos.
+
+**Clase teoría**
+Si, son covariantes, es decir son tipos compatibles, pero un ``List<String>`` no es tipo compatible de ``List<Objet>``, por eso se usan los genericos dado que son invariantes.
+
+
 
 ## 13. Java permite recuperar covarianza y contravarianza en tipos genéricos de forma controlada mediante **wildcards**. ¿Qué es un wildcard (`?`)? Muestra la diferencia entre `List<? extends T>` y `List<? super T>`, indicando en qué casos se usa cada uno. Pon dos ejemplos: (i) un método que reciba una lista de números y calcule su suma, usando `? extends`; (ii) un método que reciba una lista y le añada varios números enteros, usando `? super`.
 
 ### Respuesta
+
+Un **wildcard** (`?`) en Java representa un **tipo desconocido** dentro de una estructura genérica. Se utiliza cuando no interesa (o no se puede) fijar un tipo concreto, pero sí **expresar una relación de subtipo** respecto a otro. Los wildcards permiten recuperar de forma controlada la **covarianza** y **contravarianza** que no existe por defecto en los genéricos, manteniendo la seguridad de tipos. En lugar de indicar *qué tipo es*, se indica *qué relación tiene con otro tipo*.
+
+La expresión `List<? extends T>` indica una lista cuyos elementos son de **algún subtipo de `T`** (incluido `T`). Es un caso de **covarianza**: permite leer valores como `T`, pero **no permite añadir elementos** (salvo `null`), ya que el tipo concreto es desconocido. Se usa cuando la lista se comporta como **productora de valores**. Por el contrario, `List<? super T>` indica una lista cuyos elementos son de **algún supertipo de `T`**, lo que corresponde a **contravarianza**. En este caso sí se pueden **añadir elementos de tipo `T`**, pero al leer solo se obtiene `Object`. Se usa cuando la lista actúa como **consumidora de valores**. Esta idea se resume habitualmente en la regla *PECS*: *Producer Extends, Consumer Super*.
+
+El siguiente método ejemplifica el uso de `? extends` para **leer números** y calcular su suma. Acepta listas de `Integer`, `Double`, `Float`, etc., sin necesidad de duplicar código, y sin riesgo de romper la seguridad de tipos:
+
+```java
+public static double sumar(List<? extends Number> lista) {
+    double suma = 0.0;
+    for (Number n : lista) {
+        suma += n.doubleValue();
+    }
+    return suma;
+}
+```
+
+En cambio, el siguiente método utiliza `? super` para **añadir valores**. Puede recibir una `List<Integer>`, una `List<Number>` o incluso una `List<Object>`, y en todos los casos es seguro insertar enteros:
+
+```java
+public static void añadirEnteros(List<? super Integer> lista) {
+    lista.add(1);
+    lista.add(2);
+    lista.add(3);
+}
+```
+
+En conjunto, los wildcards permiten expresar con precisión **cómo se va a usar una estructura genérica** (para leer, para escribir o ambas cosas), algo que los genéricos invariantes no permiten por sí solos. Gracias a ello, Java consigue un equilibrio entre flexibilidad y seguridad de tipos sin introducir errores en tiempo de ejecución.
+
+**Clase teoría**
+Para usar unha lista generica algo máis flexible podedemos facer:
+``List<String>``
+``List<?>``
+``List<? super Number>``
+``List<? exetends Number>``
