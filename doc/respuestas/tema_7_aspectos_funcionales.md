@@ -452,16 +452,187 @@ Aquí la función **consume** valores de tipo `T`, por lo que se permite `? supe
 El uso de comodines con PECS no cambia el comportamiento del programa, pero sí amplía los usos válidos desde el punto de vista del compilador. Esto es especialmente importante en librerías y APIs generales, donde pequeñas decisiones en las firmas de los métodos marcan una gran diferencia en extensibilidad y reutilización, manteniendo al mismo tiempo la comprobación estática de tipos que caracteriza a Java.
 
 
+***Clase troría***
+Regla pnmeotecnica
+"PECS"
+Producer: devuelve T -> Extends
+C: recibe T -> super
+
 ## 16. Referencias a métodos. Podemos obtener una referencia a métodos de objetos o clases. Pon un ejemplo en JavaScript y en Java, de una clase `Persona` con un método `saludar`. En el código principal, crea una `Persona` con un nombre, y obtén una referencia a su método `saludar` en una variable local. Invoca `saludar` con esa referencia a su método `saludar`.
 
 ### Respuesta
+
+Las **referencias a métodos** permiten tratar un método existente como una función reutilizable, sin necesidad de envolverlo explícitamente en una nueva lambda. En esencia, se obtiene una referencia al comportamiento ya definido en una clase u objeto y se almacena en una variable para invocarlo más tarde. Este mecanismo refuerza la idea de que los métodos pueden usarse como valores, alineándose con los principios del paradigma funcional.
+
+En **JavaScript**, los métodos de los objetos son funciones, pero es importante tener en cuenta el valor de `this`. Al obtener una referencia a un método de un objeto, suele ser necesario enlazar explícitamente el contexto con `bind`, para que el método siga refiriéndose al objeto correcto cuando se invoque desde otra variable. El siguiente ejemplo muestra una clase `Persona`, la creación de un objeto y la obtención de una referencia a su método `saludar`:
+
+```javascript
+class Persona {
+    constructor(nombre) {
+        this.nombre = nombre;
+    }
+
+    saludar() {
+        console.log("Hola, soy " + this.nombre);
+    }
+}
+
+const persona = new Persona("Ana");
+
+// Referencia al método, enlazando el contexto
+const saludarRef = persona.saludar.bind(persona);
+
+// Invocación mediante la referencia
+saludarRef();
+```
+
+En **Java**, las referencias a métodos están integradas de forma explícita en el lenguaje desde Java 8 y respetan el sistema de tipos estático. Una referencia a un método de instancia se obtiene usando la sintaxis `objeto::metodo` y su tipo viene dado por una interfaz funcional compatible. En el ejemplo siguiente, el método `saludar` se referencia y se almacena en una variable local de tipo `Runnable`, ya que no recibe parámetros ni devuelve valor:
+
+```java
+public class Persona {
+    private String nombre;
+
+    public Persona(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void saludar() {
+        System.out.println("Hola, soy " + nombre);
+    }
+}
+```
+
+```java
+public class Ejemplo {
+    public static void main(String[] args) {
+        Persona persona = new Persona("Ana");
+
+        Runnable saludarRef = persona::saludar;
+
+        saludarRef.run();
+    }
+}
+```
+
+Estos ejemplos muestran cómo tanto JavaScript como Java permiten reutilizar métodos existentes como funciones. En JavaScript se hace aprovechando la naturaleza dinámica de las funciones, mientras que en Java se apoya en interfaces funcionales y referencias a métodos tipadas, manteniendo la seguridad en tiempo de compilación y una sintaxis clara y expresiva.
 
 
 ## 17. ¿Qué tipos de referencias a método se pueden hacer en Java? Pon un ejemplo de referencia a método estático, a constructor, a método de instancia de una instancia concreta y a método de instancia sobre cualquier instancia.
 
 ### Respuesta
 
+En Java existen **cuatro tipos principales de referencias a método**, todas introducidas a partir de Java 8, que permiten reutilizar métodos ya definidos como si fueran funciones. Estas referencias son una forma abreviada de una función lambda cuando la lambda simplemente delega en un método existente. Su uso mejora la legibilidad y refuerza la idea de tratar el comportamiento como un valor.
+
+El primer tipo es la **referencia a un método estático**, que se obtiene usando la sintaxis `Clase::metodoEstatico`. Se emplea cuando el método no depende de ninguna instancia concreta. Por ejemplo, una referencia al método estático `parseInt` de `Integer` puede almacenarse en una interfaz funcional compatible:
+
+```java
+Function<String, Integer> convertir = Integer::parseInt;
+Integer valor = convertir.apply("42");
+```
+
+El segundo tipo es la **referencia a un constructor**, usando la sintaxis `Clase::new`. En este caso, la referencia actúa como una función que crea nuevos objetos. El tipo de la referencia depende del constructor elegido y de la interfaz funcional asociada:
+
+```java
+Supplier<Persona> creador = Persona::new;
+Persona p = creador.get();
+```
+
+El tercer tipo es la **referencia a un método de instancia de una instancia concreta**, con la forma `objeto::metodo`. Aquí el objeto ya existe y el método se invoca siempre sobre esa instancia. Es el caso visto anteriormente con `persona::saludar`:
+
+```java
+Persona persona = new Persona("Ana");
+Runnable saludarRef = persona::saludar;
+saludarRef.run();
+```
+
+Por último, existe la **referencia a un método de instancia sobre cualquier instancia de una clase**, con la sintaxis `Clase::metodo`. En este caso, la instancia sobre la que se invoca el método se pasa implícitamente como primer parámetro de la función. Un ejemplo típico es usar métodos de `String` en transformaciones:
+
+```java
+Function<String, Integer> longitud = String::length;
+Integer resultado = longitud.apply("Hola");
+```
+
+Estos cuatro tipos cubren los casos habituales de reutilización de comportamiento en Java y permiten expresar de forma clara y tipada operaciones que, de otro modo, requerirían funciones lambda explícitas. Su correcta comprensión es clave para escribir código funcional expresivo y legible dentro del paradigma multi‑paradigma de Java.
+
+***Clase teoría***
+Para referenciar a un metodo: ``Clase::metodo estatico``
+Para referenciar contructores: ``Clase::new``
+Para referenciar a metodods de instancia:
+-Sin instancia conocida: ``Persona::getNumViajes`` -> BiFuction(Persona, Ciudad, Integer)
+-Con isntancia conocida: ``pepe::getNumViajes``-> Function(Ciudad,Integer)
 
 ## 18. Otro ejemplo expresivo. Ordena una lista de `Persona`, cada persona tiene un nombre y una edad (de tipo entero). Ordena la lista de `Persona` con `Collections.sort`, pasándole como comparador una expresión lambda que compare la edad de ambas personas y si tienen la misma edad, se ordene por orden alfabético del nombre. Crea dos versiones: Una con la función de comparación hecha manualmente, y otra empleando `Comparator`.
 
 ### Respuesta
+
+La ordenación de colecciones es un ejemplo muy expresivo del uso de programación funcional en Java. El método `Collections.sort` permite recibir un **comparador** como parámetro, lo que encaja perfectamente con el uso de expresiones lambda para definir el criterio de ordenación. En lugar de crear una clase que implemente `Comparator`, se expresa directamente la lógica de comparación, haciendo el código más compacto y legible.
+
+En primer lugar, se muestra una versión en la que la **función de comparación se implementa manualmente** dentro de la lambda. Se comparan las edades de dos personas y, solo en caso de igualdad, se compara el nombre alfabéticamente. Esta versión deja explícito todo el proceso de decisión:
+
+```java
+import java.util.*;
+
+class Persona {
+    private String nombre;
+    private int edad;
+
+    public Persona(String nombre, int edad) {
+        this.nombre = nombre;
+        this.edad = edad;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public int getEdad() {
+        return edad;
+    }
+}
+
+public class Ejemplo {
+    public static void main(String[] args) {
+        List<Persona> personas = Arrays.asList(
+            new Persona("Ana", 30),
+            new Persona("Luis", 25),
+            new Persona("Carlos", 30)
+        );
+
+        Collections.sort(personas, (p1, p2) -> {
+            if (p1.getEdad() != p2.getEdad()) {
+                return p1.getEdad() - p2.getEdad();
+            }
+            return p1.getNombre().compareTo(p2.getNombre());
+        });
+    }
+}
+```
+
+En una segunda versión, se emplean los métodos auxiliares de la clase **`Comparator`**, que permiten construir comparadores de forma más declarativa y reutilizable. Este enfoque es más idiomático en Java moderno y reduce el riesgo de errores, además de mejorar la claridad del código:
+
+```java
+Collections.sort(
+    personas,
+    Comparator.comparing(Persona::getEdad)
+              .thenComparing(Persona::getNombre) // sen instancia coñecida porque ainda non sabemos a que persoa se vai chamar ao metodo
+);
+```
+
+Ambas versiones son funcionalmente equivalentes, pero la segunda expresa mejor la intención del código: primero ordenar por edad y, en caso de empate, por nombre. Este ejemplo muestra cómo Java combina orientación a objetos, genericidad y funciones lambda para ofrecer soluciones expresivas y seguras, características propias de un lenguaje claramente multi‑paradigma.
+
+
+
+
+***Clase teoría***
+Aspectos Funcionesles:
+    -Asignadas a variables;
+    -Pasadas como parametros
+    -recibidas como respuesta
+**Expresiones Lambda**
+-Anonimas
+-Contiene el Closure
+-Y si el lenguaje es estáticamente tipado, en java implementan interfaces funcionales -> Es una intefaz con solo 1 metodo abstracto. Las puede crear el programador y hay varias muy útiles en la librería de java.
+
+A las varible de tipo Interfaz Funcional les puedo asignar:
+-Una expresion Lambda.
+- new UnaimplementacionqueInstancieYPuseNombre();
